@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<script>
+    async function GetRestouran() {
+        const response = await fetch("/api/restouran", {
+            method: "GET",
+            headers: { "Accept": "application/json" }
+        });
+        if (response.ok === true) {
+            
+            const restourans = await response.json();
+            console.log(restourans);
+            let rows = document.querySelector("tbody");
+            console.log(rows);         
+            restourans.forEach(res => {
+                rows.append(row(res))
+            });
+        }
+    }
+
+    async function GetRestouranById(id) {
+        console.log(id);
+        const response = await fetch("/api/restouran/" + id, {
+            method: "GET",
+            headers: { "Accept": "application/json" }
+        });
+        if (response.ok === true) {
+            const restouran = await response.json();
+            const form = document.forms["restouranForm"];
+            form.elements["id"].value = restouran.id;
+            form.elements["date_reservation"].value = restouran.date_reservation.toString();
+            form.elements["number_table"].value = restouran.number_table;
+            form.elements["fiO_clients"].value = restouran.fiO_clients;
+            form.elements["phone_clients"].value = restouran.phone_clients;
+        }
+    }
+
+    async function CreateRestouran(date_reservation, number_table, fiO_clients, phone_clients) {
+        
+        const response = await fetch("api/restouran", {
+            method: "POST",
+            headers: {
+                "Accept": "application/json", "Content-Type":
+                    "application/json"
+            },
+            body: JSON.stringify({
+                
+                Date_reservation: date_reservation.value.toString(),
+                Number_table: number_table,
+                FIO_clients: fiO_clients,
+                Phone_clients: phone_clients
+            })
+
+        });
+        
+        console.log(number_table);
+        if (response.ok === true) {
+            const restouran = await response.json();         
+            reset();
+            document.querySelector("tbody").append(row(restouran));            
+        }
+        else
+        {
+            alert("Невозможно забронировать столик!");
+        }
+    }
+
+    async function EditRestouran(restouranId, Date_reservation, Number_table, FIO_clients, Phone_clients) {
+        const response = await fetch("/api/restouran/" + restouranId, {
+            method: "PUT",
+            headers: {
+                "Accept": "application/json", "Content-Type":
+                    "application/json"
+            },
+            body: JSON.stringify({
+                id: parseInt(restouranId, 10),
+                Date_reservation: Date_reservation.value.toString(),
+                Number_table: Number_table,
+                FIO_clients: FIO_clients,
+                Phone_clients: Phone_clients
+            })
+        });
+        if (response.ok === true) {
+            const restouran = await response.json();
+            reset();
+            document.querySelector("tr[data-rowid='" + restouran.id + "']").replaceWith(row(restouran));
+        }
+    }
+
+    async function DeleteRestouran(id) {
+        const response = await fetch("/api/restouran/" + id, {
+            method: "DELETE",
+            headers: { "Accept": "application/json" }
+        });
+        if (response.ok === true) {
+            const restouran = await response.json();
+            document.querySelector("tr[data-rowid='" + restouran.id + "']").remove();
+        }
+    }
+
+    function reset() {
+        const form = document.forms["restouranForm"];
+        form.reset();
+        form.elements["id"].value = 0;
+    }
+
+    
+
+    function row(restouran) {
+        const tr = document.createElement("tr");
+
+        tr.setAttribute("data-rowid", restouran.id);
+        const idTd = document.createElement("td");
+        idTd.append(restouran.id);
+        tr.append(idTd);
+
+        const dateandtimeTd = document.createElement("td");
+        dateandtimeTd.append(restouran.date_reservation);
+        tr.append(dateandtimeTd);
+
+        const numberTd = document.createElement("td");
+        numberTd.append(restouran.number_table);
+        tr.append(numberTd);
+
+        const fioClientTd = document.createElement("td");
+        fioClientTd.append(restouran.fiO_clients);
+        tr.append(fioClientTd);
+
+        const phoneClientTd = document.createElement("td");
+        phoneClientTd.append(restouran.phone_clients);
+        tr.append(phoneClientTd);
+
+        const linksTd = document.createElement("td");
+        const editLink = document.createElement("a");
+
+        editLink.setAttribute("data-id", restouran.id);
+        editLink.setAttribute("style", "cursor:pointer;padding:15px;");
+        editLink.append("Изменить");
+        editLink.addEventListener("click", e => {
+            e.preventDefault();
+            GetRestouranById(restouran.id);
+        });
+
+        linksTd.append(editLink);
+        const removeLink = document.createElement("a");
+        removeLink.setAttribute("data-id", restouran.id);
+        removeLink.setAttribute("style", "cursor:pointer;padding:15px;");
+        removeLink.append("Удалить");
+        removeLink.addEventListener("click", e => {
+            e.preventDefault();
+            DeleteRestouran(restouran.id);
+        });
+        linksTd.append(removeLink);
+        tr.appendChild(linksTd);
+        return tr;
+    }
+
+    
+
+    function InitialFunction() {
+        document.getElementById("reset").click(function (e) {
+            e.preventDefault();
+            console.log("sii")
+            reset();
+            
+        })
+
+        $("#reset").click(function (e) {
+            e.preventDefault();
+            console.log("sii")
+            reset();
+        });
+        document.forms["restouranForm"].addEventListener("submit", e => {
+            e.preventDefault();
+            const form = document.forms["restouranForm"];
+            const id = form.elements["id"].value;
+            const date_reservation = form.elements["date_reservation"]           
+            const number_table = form.elements["number_table"].value;
+            const fiO_clients = form.elements["fiO_clients"].value;
+            const phone_clients = form.elements["phone_clients"].value;
+            if (id == 0)
+                CreateRestouran(date_reservation, number_table, fiO_clients, phone_clients);
+            else
+                EditRestouran(id, date_reservation, number_table, fiO_clients, phone_clients);
+        });
+        GetRestouran();
+    }
+</script>
+<html>
+    <head>
+        
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width" />
+        <title>Заказы в ресторане</title>
+        <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.0/css/bootstrap.min.css" rel="stylesheet" />
+        <script src="https://code.jquery.com/jquery-3.6.0.js" integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk=" crossorigin="anonymous"></script>
+    </head>
+    
+    <body onload="InitialFunction();">
+        <h2>Осуществите заказ столика в нашем ресторане!</h2>
+        <div class="container-fluid d-flex h-100 justify-content-center align-items-center p-3">
+            <div class="row bg-white shadow-sm">
+
+                <form name="restouranForm">
+                    <input type="hidden" name="id" value="0" />
+                    <div>
+                        <label for="date_reservation">Дата и время:</label>
+                        <input type="datetime-local" class="form-control" name="date_reservation" />
+                    </div>
+                    <div>
+                        <label for="number_table">Номер столика:</label>
+                        <input class="form-control" name="number_table" />
+                    </div>
+                    <div>
+                        <label for="fiO_clients">ФИО клиента:</label>
+                        <input class="form-control" name="fiO_clients" />
+                    </div>
+                    <div>
+                        <label for="phone_clients">Номер телефона клиента:</label>
+                        <input class="form-control" name="phone_clients" />
+                    </div>
+                    <div class="panel-body">
+                        <button type="submit" id="submit" class="btn btnprimary">Сохранить</button>
+                        <a id="reset" class="btn btn-primary">Сбросить</a>
+                    </div>
+                </form>
+
+            </div>
+
+        </div>
+        <table class="table table-condensed table-striped align-items-center">
+            <thead>
+                <tr>
+                    <th>Id</th>
+                    <th>Дата и время</th>
+                    <th>Номер столика</th>
+                    <th>Номер телефона клиента</th>
+                    <th>ФИО клиента</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>            
+            </tbody>
+        </table>       
+    </body>    
+</html>
+
