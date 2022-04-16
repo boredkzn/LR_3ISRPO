@@ -10,8 +10,7 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Data.SqlClient;
 using Microsoft.AspNetCore.Builder;
-using ISRPO3.Models;
-
+using ISRPOLR3.Models;
 
 namespace ISRPO3
 {
@@ -21,7 +20,7 @@ namespace ISRPO3
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddDbContext<RestouranContext>(options => options.UseSqlServer(SqlConnectionIntegratedSecurity));
+            services.AddDbContext<HAIRDRESSContext>(options => options.UseSqlServer(SqlConnectionIntegratedSecurity));
             services.AddControllers();
         }
 
@@ -33,7 +32,7 @@ namespace ISRPO3
                 {
                     DataSource = "LAPTOP-AE7P1RT2\\SQLEXPRESS",
                     IntegratedSecurity = true,
-                    InitialCatalog = "RESTOURAN"
+                    InitialCatalog = "HAIRDRESS"
                 };
                 return sb.ConnectionString;
             }
