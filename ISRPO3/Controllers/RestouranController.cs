@@ -41,15 +41,16 @@ namespace ISRPO3.Controllers
                 return BadRequest();
             }
             _db.MainTable.Add(restouran);
-            await _db.SaveChangesAsync();
             var all = _db.MainTable.ToList();
-            foreach(var one in all)
+            foreach (var one in all)
             {
-                if(restouran.Date_reservation == one.Date_reservation)
+                if (restouran.Date_reservation == one.Date_reservation)
                 {
                     return BadRequest();
                 }
             }
+            await _db.SaveChangesAsync();
+            
             return Ok(restouran);
         }
         [HttpPut("{id}")]
