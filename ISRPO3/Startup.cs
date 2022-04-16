@@ -31,7 +31,7 @@ namespace ISRPO3
             {
                 var sb = new SqlConnectionStringBuilder
                 {
-                    DataSource = "(localdb)\\MSSQLLocalDB",
+                    DataSource = "LAPTOP-AE7P1RT2\\SQLEXPRESS",
                     IntegratedSecurity = true,
                     InitialCatalog = "RESTOURAN"
                 };
